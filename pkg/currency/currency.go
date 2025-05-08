@@ -6,18 +6,16 @@ import (
 	"regexp"
 	"strconv"
 	"strings"
-
-	"hfe-go/pkg/config"
 )
 
 // AmountRegexp is the regular expression for parsing the amount and currency from the message.
 var AmountRegexp = regexp.MustCompile(`^(\d+(?:[.,]\d+)?)\s*([A-Za-z]{3})?$`)
 
 // ParseFromMessage parses the amount and currency from the message.
-func ParseFromMessage(text string, cfg *config.AppConfig) (float64, string, error) {
+func ParseFromMessage(text string, defaultCurrency string) (float64, string, error) {
 	// Assume the amount is in the default currency if the message is a number.
 	if amount, err := strconv.Atoi(text); err == nil {
-		return float64(amount), cfg.DefaultCurrency, nil
+		return float64(amount), defaultCurrency, nil
 	}
 
 	items := strings.Split(text, " ")
@@ -35,15 +33,15 @@ func ParseFromMessage(text string, cfg *config.AppConfig) (float64, string, erro
 }
 
 // GetAmount gets the amount in the default currency.
-func GetAmount(text string, cfg *config.AppConfig) (float64, error) {
+func GetAmount(text string, oxrAppId string, defaultCurrency string) (float64, error) {
 	var result float64
 
-	amount, currency, err := ParseFromMessage(text, cfg)
+	amount, currency, err := ParseFromMessage(text, defaultCurrency)
 	if err != nil {
 		return 0.0, err
 	}
 
-	rates, err := GetRates(cfg.OpenExchangeRatesAppId)
+	rates, err := GetRates(oxrAppId)
 	if err != nil {
 		return 0.0, fmt.Errorf("failed to get exchange rates: %w", err)
 	}
@@ -55,7 +53,7 @@ func GetAmount(text string, cfg *config.AppConfig) (float64, error) {
 			return 0.0, err
 		}
 	}
-	result, err = ConvertToDefault(result, rates.Rates, cfg.DefaultCurrency)
+	result, err = ConvertToDefault(result, rates.Rates, defaultCurrency)
 	if err != nil {
 		return 0.0, err
 	}
