@@ -27,7 +27,7 @@ func ParseFromMessage(text string, defaultCurrency string) (float64, string, err
 	if err != nil {
 		return 0.0, "", fmt.Errorf("invalid amount format: %w", err)
 	}
-	currency := strings.ToUpper(items[1])
+	currency := strings.ToUpper(strings.TrimSpace(items[1]))
 
 	return amount, currency, nil
 }
@@ -52,10 +52,15 @@ func GetAmount(text string, oxrAppId string, defaultCurrency string) (float64, e
 		if err != nil {
 			return 0.0, err
 		}
+	} else {
+		result = amount
 	}
-	result, err = ConvertToDefault(result, rates.Rates, defaultCurrency)
-	if err != nil {
-		return 0.0, err
+
+	if defaultCurrency != rates.Base {
+		result, err = ConvertToDefault(result, rates.Rates, defaultCurrency)
+		if err != nil {
+			return 0.0, err
+		}
 	}
 
 	return math.Round(result), nil
