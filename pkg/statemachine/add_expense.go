@@ -8,6 +8,7 @@ import (
 
 	"hfe-go/pkg/config"
 	"hfe-go/pkg/currency"
+	"hfe-go/pkg/spreadsheets"
 )
 
 const (
@@ -70,11 +71,10 @@ func NewAddExpenseState() *fsm.FSM {
 				return
 			}
 
-			fmt.Println("Amount:", normalizedAmount)
-			fmt.Println("Category:", category)
-			fmt.Println("Comment:", comment)
-
-			// TODO: save to google sheets
+			if err := spreadsheets.AddExpense(cfg.GoogleSheets, normalizedAmount, category.(string), comment); err != nil {
+				e.Cancel(fmt.Errorf("spreadsheets.AddExpense error: %w", err))
+				return
+			}
 		},
 	}
 
