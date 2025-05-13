@@ -17,8 +17,8 @@ jobs:
 
     - uses: 'google-github-actions/auth@v2'
       with:
-        project_id: '${{ env.GCP_PROJECT_ID }}'
-        workload_identity_provider: 'projects/${{ env.GCP_PROJECT_NUMBER }}/locations/global/workloadIdentityPools/github/providers/github-cwarck-hfe-bot'
+        project_id: '${{ vars.GCP_PROJECT_ID }}'
+        workload_identity_provider: 'projects/${{ vars.GCP_PROJECT_NUMBER }}/locations/global/workloadIdentityPools/github/providers/github-cwarck-hfe-bot'
     
     - name: 'Set up Cloud SDK'
       uses: 'google-github-actions/setup-gcloud@v2'
@@ -27,10 +27,10 @@ jobs:
 
     - name: 'Docker auth'
       run: |-
-        gcloud auth configure-docker ${{ env.GAR_LOCATION }}-docker.pkg.dev
+        gcloud auth configure-docker ${{ vars.GAR_LOCATION }}-docker.pkg.dev
     
     - name: 'Build and push image'
       run: |-
-        IMAGE="${{ env.GAR_LOCATION }}-docker.pkg.dev/${{ env.GCP_PROJECT_ID }}/hfe-bot:${{ github.sha }}"
+        IMAGE="${{ vars.GAR_LOCATION }}-docker.pkg.dev/${{ vars.GCP_PROJECT_ID }}/hfe-bot:${{ github.sha }}"
         docker build -t $IMAGE .
         docker push $IMAGE
