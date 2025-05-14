@@ -31,6 +31,6 @@ jobs:
     
     - name: 'Build and push image'
       run: |-
-        IMAGE="${{ vars.GAR_LOCATION }}-docker.pkg.dev/${{ vars.GCP_PROJECT_ID }}/hfe-bot:${{ github.sha }}"
+        IMAGE="${{ vars.GAR_LOCATION }}-docker.pkg.dev/${{ vars.GCP_PROJECT_ID }}/hfe-bot/hfe-bot:${{ github.sha }}"
         docker build -t $IMAGE .
         docker push $IMAGE
