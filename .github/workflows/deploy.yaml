@@ -2,10 +2,10 @@ name: Deploy
 
 on:
   push:
-    branches: [main]
+    branches: [main, feat-ci-deploy]
 
 jobs:
-  build-push:
+  deploy:
     runs-on: ubuntu-latest
 
     permissions:
@@ -19,7 +19,7 @@ jobs:
       with:
         project_id: '${{ vars.GCP_PROJECT_ID }}'
         workload_identity_provider: 'projects/${{ vars.GCP_PROJECT_NUMBER }}/locations/global/workloadIdentityPools/github/providers/github-cwarck-hfe-bot'
-    
+
     - name: 'Set up Cloud SDK'
       uses: 'google-github-actions/setup-gcloud@v2'
       with:
@@ -28,9 +28,14 @@ jobs:
     - name: 'Docker auth'
       run: |-
         gcloud auth configure-docker ${{ vars.GAR_LOCATION }}-docker.pkg.dev
-    
+
     - name: 'Build and push image'
       run: |-
         IMAGE="${{ vars.GAR_LOCATION }}-docker.pkg.dev/${{ vars.GCP_PROJECT_ID }}/hfe-bot/hfe-bot:${{ github.sha }}"
         docker build -t $IMAGE .
         docker push $IMAGE
+
+    - uses: 'google-github-actions/deploy-cloudrun@v2'
+      with:
+        service: 'hfe-bot'
+        image: '${{ vars.GAR_LOCATION }}-docker.pkg.dev/${{ vars.GCP_PROJECT_ID }}/hfe-bot/hfe-bot:${{ github.sha }}'
