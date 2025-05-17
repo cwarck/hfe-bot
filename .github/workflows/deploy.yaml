@@ -54,4 +54,5 @@ jobs:
     - uses: 'google-github-actions/deploy-cloudrun@v2'
       with:
         service: 'hfe-bot'
+        region: '${{ vars.GAR_LOCATION }}'
         image: '${{ vars.GAR_LOCATION }}-docker.pkg.dev/${{ vars.GCP_PROJECT_ID }}/hfe-bot/hfe-bot:${{ github.sha }}'
