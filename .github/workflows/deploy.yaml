@@ -2,7 +2,7 @@ name: Deploy
 
 on:
   push:
-    branches: [main, feat-ci-deploy]
+    branches: [main]
 
 jobs:
   build-push:
